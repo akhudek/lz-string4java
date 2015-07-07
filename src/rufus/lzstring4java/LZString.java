@@ -422,7 +422,16 @@ public class LZString {
 		}
 	}
 	
-	public static String compressToBase64(String inputStr) {
+	public static final String _uriKeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$";
+	protected static final char[] _uriKeyChars = _uriKeyStr.toCharArray();
+	protected static final HashMap<Character, Character> _uriKeyCharIndexMap = new HashMap<Character, Character>(_uriKeyStr.length());
+	static {
+		for (int i = 0; i < _uriKeyChars.length; i++) {
+			_keyCharIndexMap.put(_uriKeyChars[i], (char) i);
+		}
+	}
+
+	public static String compressToBase64(String inputStr, char[] keyChars ) {
 		if (inputStr == null)
 			return "";
 		StringBuffer output = new StringBuffer(inputStr.length() / 3);
@@ -470,13 +479,21 @@ public class LZString {
 				enc4 = 64;
 			}
 
-			output.append(_keyChars[enc1]);
-			output.append(_keyChars[enc2]);
-			output.append(_keyChars[enc3]);
-			output.append(_keyChars[enc4]);
+			output.append(keyChars[enc1]);
+			output.append(keyChars[enc2]);
+			output.append(keyChars[enc3]);
+			output.append(keyChars[enc4]);
 		}
 
 		return output.toString();
+	}
+
+	public static String compressToBase64(String inputStr) {
+		return LZString.compressToBase64(inputStr, _keyChars);
+	}
+
+	public static String compressToEncodedURIComponent(String inputStr) {
+		return LZString.compressToBase64(inputStr, _uriKeyChars);
 	}
 	
 	public static String decompressFromBase64(String inputStr) {
@@ -703,10 +720,11 @@ public class LZString {
 		String input;
 //		input = "hello";
 		input = "hello1hello2hello3hello4hello5hello6hello7hello8hello9helloAhelloBhelloChelloDhelloEhelloF";
-	
+
 		System.out.println(decompress(compress(input)));
 		System.out.println(decompressFromBase64(compressToBase64(input)));
 		System.out.println(decompressFromUTF16(compressToUTF16(input)));
+		System.out.println(compressToEncodedURIComponent(input));
 
 	}
 		
